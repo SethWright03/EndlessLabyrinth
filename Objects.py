@@ -4,13 +4,19 @@ class Player(pygame.sprite.Sprite):
     position = pygame.Vector2(160,480)
     posX = 160
     posY = 480
-    health = 3
     def __init__(self):
         super().__init__()
         self.image = pygame.Surface((80,80))
+        self.health = 3
         self.image.fill('blue')
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.posX,self.posY)
+        self.damage_duration = 500
+        self.damage_time = 0
+    def damage(self):
+        self.health -= 1
+        self.image.fill('orange')
+        self.damage_time = pygame.time.get_ticks()
 
 class Floor_Trap(pygame.sprite.Sprite):
     def __init__(self):

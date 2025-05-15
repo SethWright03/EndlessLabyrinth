@@ -2,10 +2,12 @@ import pygame
 import random
 import Rooms
 import Objects
+import time
 
 walls = pygame.sprite.Group()
 floors = pygame.sprite.Group()
 traps = pygame.sprite.Group()
+players = pygame.sprite.Group()
 
 rooms_generated = 0
 last_exit = 0
@@ -69,13 +71,20 @@ def generate_room():
 def pass_turn():
     for tile in traps:
         tile.turn()
+        trap_collisions = pygame.sprite.spritecollide(tile,players,False)
+        if trap_collisions and tile.activity_state == True:
+            player.damage()
+            print('damaged! health remaining: ',player.health)
 
 pygame.init()
+pygame.font.init()
+font = pygame.font.SysFont('Comic Sans MS',30)
 screen = pygame.display.set_mode((1280,720))
 clock = pygame.time.Clock()
 running = True
 player_tilepos = pygame.Vector2(160,480)
 player = Objects.Player()
+players.add(player)
 generate_room()
 
 while running:
@@ -125,9 +134,15 @@ while running:
         player_tilepos.x = 0
     player.rect.topleft = player_tilepos
     screen.fill('black')
-
+    if pygame.time.get_ticks() - player.damage_time >= player.damage_duration:
+        player.image.fill('blue')
+    health_counter = font.render(f'Health: {player.health}',True,'red')
     floors.draw(screen)
     walls.draw(screen)
     traps.draw(screen)
     screen.blit(player.image,player.rect.topleft)
+    screen.blit(health_counter,(0,0))
     pygame.display.flip()
+    if player.health <= 0:
+        running = False
+        print('GAME OVER')
