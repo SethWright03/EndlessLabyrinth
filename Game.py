@@ -8,6 +8,7 @@ walls = pygame.sprite.Group()
 floors = pygame.sprite.Group()
 traps = pygame.sprite.Group()
 players = pygame.sprite.Group()
+enemies = pygame.sprite.Group()
 
 rooms_generated = 0
 last_exit = 0
@@ -16,9 +17,11 @@ def generate_room():
     global rooms_generated
     global last_exit
     traps_placed = 0
+    enemies_placed = 0
     walls.empty()
     floors.empty()
     traps.empty()
+    enemies.empty()
     match last_exit:
         case 1:
             random_number = random.randint(1,4)
@@ -63,6 +66,15 @@ def generate_room():
                     tile.position.y = tilepos_y
                     traps.add(tile)
                     traps_placed += 1
+            if room.enemies == True and room.room_tiles[row][column] == 0 and enemies_placed <= 3:
+                enemy_check = random.randint(1,20)
+                if enemy_check == 1:
+                    enemy = Objects.Goblin()
+                    enemy.rect.topleft = (tilepos_x,tilepos_y)
+                    enemy.position.x = tilepos_x
+                    enemy.position.y = tilepos_y
+                    enemies.add(enemy)
+                    enemies_placed += 1
         column = 0
     rooms_generated += 1
     last_exit = room.exit_type
@@ -74,6 +86,13 @@ def pass_turn():
         trap_collisions = pygame.sprite.spritecollide(tile,players,False)
         if trap_collisions and tile.activity_state == True:
             player.damage()
+            print('damaged! health remaining: ',player.health)
+    for enemy in enemies:
+        enemy.turn(player_tilepos,walls)
+        enemy_collisions = pygame.sprite.spritecollide(enemy,players,False)
+        if enemy_collisions:
+            player.damage()
+            enemy.undo_move()
             print('damaged! health remaining: ',player.health)
 
 pygame.init()
@@ -140,6 +159,7 @@ while running:
     floors.draw(screen)
     walls.draw(screen)
     traps.draw(screen)
+    enemies.draw(screen)
     screen.blit(player.image,player.rect.topleft)
     screen.blit(health_counter,(0,0))
     pygame.display.flip()

@@ -69,7 +69,7 @@ class NorthEastSmallRoom:
                   [1,0,0,1,2,2,2,2,2,2,2,2,2,2,2,2]]
     exit_type = 2
     traps = True
-    enemies = False
+    enemies = True
     chests = 0
     room_id = 3
 
@@ -85,7 +85,7 @@ class NorthNorthSmallRoom:
                   [1,0,0,1,2,2,2,2,2,2,2,2,2,2,2,2]]
     exit_type = 1
     traps = True
-    enemies = False
+    enemies = True
     chests = 0
     room_id = 4
 
@@ -133,6 +133,6 @@ class EastNorthLargeRoom:
                   [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2]]
     exit_type = 1
     traps = True
-    enemies = False
+    enemies = True
     chests = 0
     room_id = 7
