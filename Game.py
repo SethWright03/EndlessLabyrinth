@@ -4,17 +4,15 @@ import Rooms
 import Objects
 
 walls = pygame.sprite.Group()
-
-
+floors = pygame.sprite.Group()
 rooms_generated = 0
 last_exit = 0
 
 def generate_room():
     global rooms_generated
     global last_exit
-    # each room should generate the next as soon as the player enters
-    # random: pick a room whose entrance lines up with last-generated exit type.
     walls.empty()
+    floors.empty()
     match last_exit:
         case 1:
             random_number = random.randint(1,4)
@@ -47,13 +45,13 @@ def generate_room():
             if room.room_tiles[row][column] == 1:
                 tile = Objects.Wall_Tile(tilepos_x,tilepos_y)
                 walls.add(tile)
+            if room.room_tiles[row][column] == 0:
+                tile = Objects.Floor_Tile(tilepos_x,tilepos_y)
+                floors.add(tile)
         column = 0
     rooms_generated += 1
     last_exit = room.exit_type
     return(rooms_generated,last_exit)
-
-# for a room that exits north (last_exit == 1), player y position < (80 + y offset) to exit
-# for a room that exits east (last_exit == 2), player x position > (1200 + x offset) to exit
 
 pygame.init()
 screen = pygame.display.set_mode((1280,720))
@@ -61,6 +59,7 @@ clock = pygame.time.Clock()
 running = True
 
 player_tilepos = pygame.Vector2(160,480)
+player = Objects.Player()
 
 generate_room()
 
@@ -71,12 +70,32 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RIGHT:
                 player_tilepos.x += 80
+                player.rect.topleft = player_tilepos
+                wall_collisions = pygame.sprite.spritecollide(player,walls,False)
+                if wall_collisions:
+                    player_tilepos.x -= 80
+                    player.rect.topleft = player_tilepos
             if event.key == pygame.K_LEFT:
                 player_tilepos.x -= 80
+                player.rect.topleft = player_tilepos
+                wall_collisions = pygame.sprite.spritecollide(player,walls,False)
+                if wall_collisions:
+                    player_tilepos.x += 80
+                    player.rect.topleft = player_tilepos
             if event.key == pygame.K_UP:
                 player_tilepos.y -= 80
+                player.rect.topleft = player_tilepos
+                wall_collisions = pygame.sprite.spritecollide(player,walls,False)
+                if wall_collisions:
+                    player_tilepos.y += 80
+                    player.rect.topleft = player_tilepos
             if event.key == pygame.K_DOWN:
                 player_tilepos.y += 80
+                player.rect.topleft = player_tilepos
+                wall_collisions = pygame.sprite.spritecollide(player,walls,False)
+                if wall_collisions:
+                    player_tilepos.y -= 80
+                    player.rect.topleft = player_tilepos
     if last_exit == 1 and player_tilepos.y <= -1:
         generate_room()
         player_tilepos.y = 640
@@ -85,13 +104,13 @@ while running:
         generate_room()
         player_tilepos.y = 560
         player_tilepos.x = 0
-    player_centerpos = [player_tilepos.x + 40,player_tilepos.y + 40]
+    player.rect.topleft = player_tilepos
     screen.fill('black')
-    # temporary placeholder player; replace with real object later
-    pygame.draw.circle(screen,'blue',player_centerpos,40)
 
     # figure out turn pass logic later, worry about room generation for now;
-    # movement goes in for event loop
+    # movement goes in for event loop until I figure that out
 
+    floors.draw(screen)
     walls.draw(screen)
+    screen.blit(player.image,player.rect.topleft)
     pygame.display.flip()
