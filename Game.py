@@ -5,14 +5,18 @@ import Objects
 
 walls = pygame.sprite.Group()
 floors = pygame.sprite.Group()
+traps = pygame.sprite.Group()
+
 rooms_generated = 0
 last_exit = 0
 
 def generate_room():
     global rooms_generated
     global last_exit
+    traps_placed = 0
     walls.empty()
     floors.empty()
+    traps.empty()
     match last_exit:
         case 1:
             random_number = random.randint(1,4)
@@ -48,19 +52,30 @@ def generate_room():
             if room.room_tiles[row][column] == 0:
                 tile = Objects.Floor_Tile(tilepos_x,tilepos_y)
                 floors.add(tile)
+            if room.traps == True and room.room_tiles[row][column] == 0 and traps_placed <= 4:
+                trap_check = random.randint(1,20)
+                if trap_check == 1:
+                    tile = Objects.Floor_Trap()
+                    tile.rect.topleft = (tilepos_x,tilepos_y)
+                    tile.position.x = tilepos_x
+                    tile.position.y = tilepos_y
+                    traps.add(tile)
+                    traps_placed += 1
         column = 0
     rooms_generated += 1
     last_exit = room.exit_type
     return(rooms_generated,last_exit)
 
+def pass_turn():
+    for tile in traps:
+        tile.turn()
+
 pygame.init()
 screen = pygame.display.set_mode((1280,720))
 clock = pygame.time.Clock()
 running = True
-
 player_tilepos = pygame.Vector2(160,480)
 player = Objects.Player()
-
 generate_room()
 
 while running:
@@ -75,6 +90,7 @@ while running:
                 if wall_collisions:
                     player_tilepos.x -= 80
                     player.rect.topleft = player_tilepos
+                pass_turn()
             if event.key == pygame.K_LEFT:
                 player_tilepos.x -= 80
                 player.rect.topleft = player_tilepos
@@ -82,6 +98,7 @@ while running:
                 if wall_collisions:
                     player_tilepos.x += 80
                     player.rect.topleft = player_tilepos
+                pass_turn()
             if event.key == pygame.K_UP:
                 player_tilepos.y -= 80
                 player.rect.topleft = player_tilepos
@@ -89,6 +106,7 @@ while running:
                 if wall_collisions:
                     player_tilepos.y += 80
                     player.rect.topleft = player_tilepos
+                pass_turn() 
             if event.key == pygame.K_DOWN:
                 player_tilepos.y += 80
                 player.rect.topleft = player_tilepos
@@ -96,6 +114,7 @@ while running:
                 if wall_collisions:
                     player_tilepos.y -= 80
                     player.rect.topleft = player_tilepos
+                pass_turn() 
     if last_exit == 1 and player_tilepos.y <= -1:
         generate_room()
         player_tilepos.y = 640
@@ -107,10 +126,8 @@ while running:
     player.rect.topleft = player_tilepos
     screen.fill('black')
 
-    # figure out turn pass logic later, worry about room generation for now;
-    # movement goes in for event loop until I figure that out
-
     floors.draw(screen)
     walls.draw(screen)
+    traps.draw(screen)
     screen.blit(player.image,player.rect.topleft)
     pygame.display.flip()

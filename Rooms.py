@@ -36,7 +36,7 @@ class NorthNorthHallway:
                   [1,0,0,1,2,2,2,2,2,2,2,2,2,2,2,2],
                   [1,0,0,1,2,2,2,2,2,2,2,2,2,2,2,2]]
     exit_type = 1
-    traps = False
+    traps = True
     enemies = False
     chests = 0
     room_id = 1
@@ -52,7 +52,7 @@ class NorthEastHallway:
                   [1,0,0,1,2,2,2,2,2,2,2,2,2,2,2,2],
                   [1,0,0,1,2,2,2,2,2,2,2,2,2,2,2,2]]
     exit_type = 2
-    traps = False
+    traps = True
     enemies = False
     chests = 0
     room_id = 2
@@ -68,7 +68,7 @@ class NorthEastSmallRoom:
                   [1,0,0,1,1,1,1,1,1,1,1,1,1,2,2,2],
                   [1,0,0,1,2,2,2,2,2,2,2,2,2,2,2,2]]
     exit_type = 2
-    traps = False
+    traps = True
     enemies = False
     chests = 0
     room_id = 3
@@ -84,7 +84,7 @@ class NorthNorthSmallRoom:
                   [1,0,0,1,1,1,1,1,1,1,1,1,1,2,2,2],
                   [1,0,0,1,2,2,2,2,2,2,2,2,2,2,2,2]]
     exit_type = 1
-    traps = False
+    traps = True
     enemies = False
     chests = 0
     room_id = 4
@@ -100,7 +100,7 @@ class EastEastCrookedHall:
                   [0,0,0,0,0,0,0,1,1,2,2,2,2,2,2,2],
                   [1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2]]
     exit_type = 2
-    traps = False
+    traps = True
     enemies = False
     chests = 0
     room_id = 5
@@ -116,7 +116,7 @@ class EastNorthHall:
                   [0,0,0,0,0,0,0,0,0,1,2,2,2,2,2,2],
                   [1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2]]
     exit_type = 1
-    traps = False
+    traps = True
     enemies = False
     chests = 0
     room_id = 6
@@ -132,7 +132,7 @@ class EastNorthLargeRoom:
                   [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2],
                   [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2]]
     exit_type = 1
-    traps = False
+    traps = True
     enemies = False
     chests = 0
     room_id = 7

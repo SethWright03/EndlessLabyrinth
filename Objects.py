@@ -12,18 +12,27 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.posX,self.posY)
 
-class Goblin(pygame.sprite.Sprite):
-    position = pygame.Vector2(0,0)
-    posX = 0
-    posY = 0
-    health = 1
+class Floor_Trap(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
+        self.time_step = 0
+        self.position = pygame.Vector2(0,0)
+        self.activity_state = False
+        self.posX = 0
+        self.posY = 0
         self.image = pygame.Surface((80,80))
-        self.image.fill('red')
+        self.image.fill('black')
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.posX,self.posY)
-    enemy_ID = 1
+    def turn(self):
+        self.time_step += 1
+        if self.time_step == 3:
+            self.activity_state = True
+            self.image.fill('red')
+        if self.time_step == 6:
+            self.activity_state = False
+            self.image.fill('black')
+            self.time_step = 0
 
 class Wall_Tile(pygame.sprite.Sprite):
     position = pygame.Vector2(0,0)
