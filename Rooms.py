@@ -4,10 +4,8 @@
 # room_tiles: An array. Each list is a row of tiles, from top to bottom.
 # exit_type: Does this room exit north (1) or east (2)?
 # traps: True/False; should traps generate in this room?
-# encounters: True/False; should enemies spawn in this room?
+# enemies: True/False; should enemies spawn in this room?
 # chests: [[row,column],...]; which tiles can have chests? If 0, no chests.
-# pixel_offset_x and _y: Displacement of total coordinates relative to the room, for generation
-#     purposes.
 
 class StarterRoom:
     room_tiles = [[1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1],

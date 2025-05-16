@@ -1,4 +1,6 @@
 import pygame
+import random
+import math
 
 class Player(pygame.sprite.Sprite):
     position = pygame.Vector2(160,480)
@@ -6,8 +8,17 @@ class Player(pygame.sprite.Sprite):
     posY = 480
     def __init__(self):
         super().__init__()
+        # top-level stats; determined by player
+        self.strength = 1
+        self.dexterity = 1
+        self.constitution = 1
+        # secondary stats; determined by top-level stats
+        self.health = 3 + math.floor(self.constitution/2)
+        self.accuracy = 0 + math.floor(self.dexterity/2)
+        self.defense = 0 + math.floor(self.dexterity/2)
+        self.melee_damage = 1 + math.floor(self.strength/2)
+        # other values
         self.image = pygame.Surface((80,80))
-        self.health = 3
         self.image.fill('blue')
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.posX,self.posY)
@@ -17,6 +28,16 @@ class Player(pygame.sprite.Sprite):
         self.health -= 1
         self.image.fill('orange')
         self.damage_time = pygame.time.get_ticks()
+    def attack(self,enemy):
+        self.attack_roll = random.randint(1,20)
+        self.attack_total = self.attack_roll + self.accuracy
+        if self.attack_total >= (10 + enemy.defense):
+            enemy.health -= self.melee_damage
+            result_string = f'Player attacks ({self.attack_roll}+{self.accuracy}={self.attack_total}) for {self.melee_damage} damage!'
+            return(result_string)
+        else:
+            result_string = f'Player attacks ({self.attack_roll}+{self.accuracy}={self.attack_total}) and misses!'
+        return(result_string)
 
 class Floor_Trap(pygame.sprite.Sprite):
     def __init__(self):
@@ -65,6 +86,7 @@ class Floor_Tile(pygame.sprite.Sprite):
 class Goblin(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
+        self.dead = False
         self.position = pygame.Vector2(0,0)
         self.last_move = 0
         self.posX = 0
@@ -73,40 +95,48 @@ class Goblin(pygame.sprite.Sprite):
         self.image.fill('green')
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.posX,self.posY)
+        self.accuracy = 1
+        self.defense = 0
+        self.attack_roll = 0
+        self.attack_total = 0
+        self.health = 1
     def turn(self,player_tilepos,walls):
-        difference_x = player_tilepos.x - self.position.y
-        difference_y = player_tilepos.y - self.position.y
-        if abs(difference_x) > abs(difference_y):
-            if difference_x > 0:
-                self.position.x += 80
-                self.rect.topleft = (self.position.x,self.position.y)
-                self.last_move = 1
-                self.wall_collisions = pygame.sprite.spritecollide(self,walls,False)
-                if self.wall_collisions:
-                    self.undo_move()
+        if self.health <= 0:
+            self.dead = True
+        if self.dead == False:
+            difference_x = player_tilepos.x - self.position.y
+            difference_y = player_tilepos.y - self.position.y
+            if abs(difference_x) > abs(difference_y):
+                if difference_x > 0:
+                    self.position.x += 80
+                    self.rect.topleft = (self.position.x,self.position.y)
+                    self.last_move = 1
+                    self.wall_collisions = pygame.sprite.spritecollide(self,walls,False)
+                    if self.wall_collisions:
+                        self.undo_move()
+                else:
+                    self.position.x -= 80
+                    self.rect.topleft = (self.position.x,self.position.y)
+                    self.last_move = 2
+                    self.wall_collisions = pygame.sprite.spritecollide(self,walls,False)
+                    if self.wall_collisions:
+                        self.undo_move()
             else:
-                self.position.x -= 80
-                self.rect.topleft = (self.position.x,self.position.y)
-                self.last_move = 2
-                self.wall_collisions = pygame.sprite.spritecollide(self,walls,False)
-                if self.wall_collisions:
-                    self.undo_move()
-        else:
-            if difference_y > 0:
-                self.position.y += 80
-                self.rect.topleft = (self.position.x,self.position.y)
-                self.last_move = 3
-                self.wall_collisions = pygame.sprite.spritecollide(self,walls,False)
-                if self.wall_collisions:
-                    self.undo_move()
-            else:
-                self.position.y -= 80
-                self.rect.topleft = (self.position.x,self.position.y)
-                self.last_move = 4
-                self.wall_collisions = pygame.sprite.spritecollide(self,walls,False)
-                if self.wall_collisions:
-                    self.undo_move()
-        self.rect.topleft = (self.position.x,self.position.y)
+                if difference_y > 0:
+                    self.position.y += 80
+                    self.rect.topleft = (self.position.x,self.position.y)
+                    self.last_move = 3
+                    self.wall_collisions = pygame.sprite.spritecollide(self,walls,False)
+                    if self.wall_collisions:
+                        self.undo_move()
+                else:
+                    self.position.y -= 80
+                    self.rect.topleft = (self.position.x,self.position.y)
+                    self.last_move = 4
+                    self.wall_collisions = pygame.sprite.spritecollide(self,walls,False)
+                    if self.wall_collisions:
+                        self.undo_move()
+            self.rect.topleft = (self.position.x,self.position.y)
     def undo_move(self):
         match self.last_move:
             case 1:
@@ -118,3 +148,16 @@ class Goblin(pygame.sprite.Sprite):
             case 4:
                 self.position.y += 80
         self.rect.topleft = (self.position.x,self.position.y)
+    def attack(self,player):
+        if self.dead == False:
+            self.attack_roll = random.randint(1,20)
+            self.attack_total = self.attack_roll + self.accuracy
+            if self.attack_total >= (10 + player.defense):
+                player.damage()
+                result_string = f'Goblin attacks ({self.attack_roll}+{self.accuracy}={self.attack_total}) for 1 damage!'
+                return(result_string)
+            else:
+                result_string = f'Goblin attacks ({self.attack_roll}+{self.accuracy}={self.attack_total}) and misses!'
+                return(result_string)
+        else:
+            pass
